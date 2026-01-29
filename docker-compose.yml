@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: mage-postgres
+    environment:
+      POSTGRES_DB: mage
+      POSTGRES_USER: mage
+      POSTGRES_PASSWORD: mage
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mage-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mage"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mage:
+    image: mageai/mageai:latest
+    container_name: mage-ai
+    environment:
+      MAGE_DATABASE_CONNECTION_URL: postgresql+psycopg2://mage:mage@postgres:5432/mage
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: minio123
+      AWS_REGION: us-east-1
+    ports:
+      - "6789:6789"
+    volumes:
+      - .:/home/src/
+      - ~/.aws:/root/.aws
+    networks:
+      - mage-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: /app/run_app.sh mage start sales_analysis_project
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-s3
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - mage-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+networks:
+  mage-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
