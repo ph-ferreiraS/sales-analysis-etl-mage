@@ -83,13 +83,34 @@ This project implements a **Medallion Architecture** (Bronze → Silver → Gold
    ```bash
    docker-compose up -d
    ```
+   
+   ⚠️ **Security Warning**: The docker-compose.yml file contains default credentials for demonstration purposes. For production use, you **must** change the default credentials:
+   - PostgreSQL: Update `POSTGRES_USER` and `POSTGRES_PASSWORD`
+   - MinIO: Update `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`
+   - Update the corresponding credentials in the Mage service environment variables
 
 4. **Access the services**:
    - **Mage.ai**: http://localhost:6789
    - **MinIO Console**: http://localhost:9001 (user: `minio`, password: `minio123`)
    - **MinIO API**: http://localhost:9000
 
-5. **Run the Streamlit dashboard**:
+5. **Create a new Mage project**:
+   - Open Mage.ai at http://localhost:6789
+   - Create a new project named `sales_analysis_project` (or your preferred name)
+   - Configure your ETL pipelines
+
+6. **Set up MinIO buckets**:
+   - Access MinIO Console at http://localhost:9001
+   - Log in with credentials: `minio` / `minio123`
+   - Create three buckets: `bronze`, `silver`, `gold`
+   - (Optional) Configure bucket policies as needed
+
+7. **Configure OpenAI API Key** (for AI assistant feature):
+   - Obtain an API key from [OpenAI](https://platform.openai.com/)
+   - Set the environment variable: `export OPENAI_API_KEY=your_api_key_here`
+   - Or add it to a `.env` file in the project root
+
+8. **Run the Streamlit dashboard**:
    ```bash
    streamlit run dashboard/app.py
    ```
@@ -194,10 +215,13 @@ Create the following buckets in MinIO:
 - `gold` - Analytics-ready data storage
 
 ### Environment Variables
-Configure the following in `docker-compose.yml`:
+Configure the following in `docker-compose.yml` or use a `.env` file:
 - `MAGE_DATABASE_CONNECTION_URL` - PostgreSQL connection
-- `AWS_ACCESS_KEY_ID` - MinIO access key
-- `AWS_SECRET_ACCESS_KEY` - MinIO secret key
+- `AWS_ACCESS_KEY_ID` - MinIO access key (default: `minio`)
+- `AWS_SECRET_ACCESS_KEY` - MinIO secret key (default: `minio123`)
+- `OPENAI_API_KEY` - OpenAI API key for AI assistant (not in docker-compose.yml, set separately)
+
+⚠️ **Important**: The default credentials in `docker-compose.yml` are for development only. Always use strong, unique credentials in production environments.
 
 ## 📚 Data Sources
 

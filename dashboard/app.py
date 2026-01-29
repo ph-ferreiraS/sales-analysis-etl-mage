@@ -25,6 +25,8 @@ with st.sidebar:
         "Select Data Layer:",
         ["Bronze (Raw)", "Silver (Cleaned)", "Gold (Analytics)"]
     )
+    # TODO: Integrate data_layer selection with actual data loading from MinIO buckets
+    # Example: bucket_name = data_layer.split()[0].lower()  # "bronze", "silver", or "gold"
     
     st.markdown("### Date Range")
     date_range = st.date_input(
@@ -72,6 +74,7 @@ with tab1:
     
     # Placeholder for charts
     st.markdown("### Sales Trend")
+    # TODO: Replace with actual data from Gold layer in MinIO
     st.line_chart(pd.DataFrame({
         'date': pd.date_range('2017-01-01', '2017-12-31', freq='M'),
         'orders': [100, 120, 150, 180, 200, 220, 250, 280, 300, 320, 350, 400]
